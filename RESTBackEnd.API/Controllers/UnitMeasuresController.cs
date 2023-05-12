@@ -57,10 +57,10 @@ namespace RESTBackEnd.API.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UnitMeasureExists(id)) 
-                  return NotFound();
+                if (!UnitMeasureExists(id))
+                    return NotFound();
                 else
-                  throw;
+                    throw;
             }
 
             return NoContent();
@@ -83,7 +83,7 @@ namespace RESTBackEnd.API.Controllers
         public async Task<IActionResult> DeleteUnitMeasure(int id)
         {
             if (_context.UnitMeasures == null) return NotFound();
-            
+
             var unitMeasure = await _context.UnitMeasures.FindAsync(id);
             if (unitMeasure == null) return NotFound();
 

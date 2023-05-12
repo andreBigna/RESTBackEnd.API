@@ -36,11 +36,11 @@ namespace RESTBackEnd.API.Controllers
         public async Task<ActionResult<Ingredient>> GetIngredient(int id)
         {
             if (_context.Ingredients == null) return NotFound();
-             
+
             var ingredient = await _context.Ingredients.FindAsync(id);
 
             if (ingredient == null) return NotFound();
-            
+
             return Ok(ingredient);
         }
 
@@ -50,7 +50,7 @@ namespace RESTBackEnd.API.Controllers
         public async Task<IActionResult> PutIngredient(int id, Ingredient ingredient)
         {
             if (id != ingredient.IngredientId) return BadRequest();
-            
+
             _context.Entry(ingredient).State = EntityState.Modified;
 
             try
@@ -60,9 +60,9 @@ namespace RESTBackEnd.API.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!IngredientExists(id))
-                  return NotFound();
+                    return NotFound();
                 else
-                  return Problem("Error updating the ingredient");
+                    return Problem("Error updating the ingredient");
             }
 
             return NoContent();
@@ -74,9 +74,9 @@ namespace RESTBackEnd.API.Controllers
         public async Task<ActionResult<Ingredient>> PostIngredient(Ingredient ingredient)
         {
             if (_context.Ingredients == null) return Problem("Entity set 'RestBackEndDbContext.Ingredients'  is null.");
-            
+
             _context.Ingredients.Add(ingredient);
-            
+
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetIngredient", new { id = ingredient.IngredientId }, ingredient);
@@ -89,7 +89,7 @@ namespace RESTBackEnd.API.Controllers
             if (_context.Ingredients == null) return NotFound();
 
             var ingredient = await _context.Ingredients.FindAsync(id);
-            
+
             if (ingredient == null) return NotFound();
 
             _context.Ingredients.Remove(ingredient);

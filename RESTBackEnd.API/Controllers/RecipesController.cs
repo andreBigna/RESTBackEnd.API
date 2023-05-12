@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RESTBackEnd.API.Data;
+using RESTBackEnd.API.Modes.Recipe;
 
 namespace RESTBackEnd.API.Controllers
 {
@@ -14,10 +16,12 @@ namespace RESTBackEnd.API.Controllers
     public class RecipesController : ControllerBase
     {
         private readonly RestBackEndDbContext _context;
+        private readonly IMapper _mapper;
 
-        public RecipesController(RestBackEndDbContext context)
+        public RecipesController(RestBackEndDbContext context, IMapper mapper)
         {
             _context = context;
+            this._mapper = mapper;
         }
 
         // GET: api/Recipes
@@ -34,7 +38,7 @@ namespace RESTBackEnd.API.Controllers
         public async Task<ActionResult<Recipe>> GetRecipe(int id)
         {
             if (_context.Recipes == null) return NotFound();
-          
+
             var recipe = await _context.Recipes.FindAsync(id);
 
             if (recipe == null) return NotFound();
@@ -48,7 +52,7 @@ namespace RESTBackEnd.API.Controllers
         public async Task<IActionResult> PutRecipe(int id, Recipe recipe)
         {
             if (id != recipe.RecipeId) return BadRequest();
-            
+
             _context.Entry(recipe).State = EntityState.Modified;
 
             try
@@ -58,9 +62,9 @@ namespace RESTBackEnd.API.Controllers
             catch (DbUpdateConcurrencyException)
             {
                 if (!RecipeExists(id))
-                  return NotFound();
+                    return NotFound();
                 else
-                  throw;
+                    throw;
             }
 
             return NoContent();
@@ -69,8 +73,10 @@ namespace RESTBackEnd.API.Controllers
         // POST: api/Recipes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Recipe>> PostRecipe(Recipe recipe)
+        public async Task<ActionResult<Recipe>> PostRecipe(CreateRecipeDto createRecipeDto)
         {
+            var recipe = _mapper.Map<Recipe>(createRecipeDto);
+
             if (_context.Recipes == null) return Problem("Entity set 'RestBackEndDbContext.Recipes'  is null.");
             _context.Recipes.Add(recipe);
             await _context.SaveChangesAsync();

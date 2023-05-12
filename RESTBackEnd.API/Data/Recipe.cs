@@ -4,19 +4,19 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace RESTBackEnd.API.Data
 {
-	public class Recipe
-	{
+    public class Recipe
+    {
 
-		[Key]
-		public int RecipeId { get; set; }
+        [Key]
+        public int RecipeId { get; set; }
 
-		[Required, MaxLength(50)]
-		public string? Name { get; set; }
+        [Required, MaxLength(50)]
+        public string? Name { get; set; }
 
-		public string? Description { get; set; }
+        public string? Description { get; set; }
 
-		public string? ImagePath { get; set; }
+        public string? ImagePath { get; set; }
 
-		public IList<Ingredient>? Ingredients { get; set; }
-	}
+        public IList<Ingredient>? Ingredients { get; set; }
+    }
 }
