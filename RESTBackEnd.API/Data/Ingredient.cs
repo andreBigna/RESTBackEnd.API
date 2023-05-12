@@ -17,7 +17,10 @@ namespace RESTBackEnd.API.Data
         [Column(TypeName = "decimal(6,2)"), Required, Range(0, 999.99)]
         public double Amount { get; set; }
 
-        public IList<Recipe>? Recipes { get; set; }
+        [Required, ForeignKey(nameof(Recipe))]
+        public int RecipeId { get; set; }
+
+        public Recipe? Recipe { get; set; }
 
         [Required, ForeignKey(nameof(UnitMeasure))]
         public int UnitMeasureId { get; set; }

@@ -1,7 +1,8 @@
 ﻿using RESTBackEnd.API.Data;
+using RESTBackEnd.API.Models.Ingredient;
 using System.ComponentModel.DataAnnotations;
 
-namespace RESTBackEnd.API.Modes.Recipe
+namespace RESTBackEnd.API.Models.Recipe
 {
     public record CreateRecipeDto
     {
@@ -11,5 +12,8 @@ namespace RESTBackEnd.API.Modes.Recipe
         public string? Description { get; set; }
 
         public string? ImagePath { get; set; }
+
+        public IList<CreateIngredientDto>? Ingredients { get; set; }
+
     }
 }

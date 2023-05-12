@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RESTBackEnd.API.Data;
-using RESTBackEnd.API.Modes.Recipe;
+using RESTBackEnd.API.Models.Recipe;
 
 namespace RESTBackEnd.API.Controllers
 {
@@ -26,22 +26,24 @@ namespace RESTBackEnd.API.Controllers
 
         // GET: api/Recipes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Recipe>>> GetRecipes()
+        public async Task<ActionResult<IEnumerable<GetRecipeDto>>> GetRecipes()
         {
             if (_context.Recipes == null) return NotFound();
-
-            return Ok(await _context.Recipes.ToListAsync());
+            var recipes = await _context.Recipes.ToListAsync();
+            var dtoRecipes = _mapper.Map<IEnumerable<GetRecipeDto>>(recipes);
+            return Ok(dtoRecipes);
         }
 
         // GET: api/Recipes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Recipe>> GetRecipe(int id)
+        public async Task<ActionResult<GetRecipeDetailDto>> GetRecipe(int id)
         {
             if (_context.Recipes == null) return NotFound();
 
             var recipe = await _context.Recipes.FindAsync(id);
-
             if (recipe == null) return NotFound();
+
+            var dtoRecipe = _mapper.Map<GetRecipeDetailDto>(recipe);
 
             return Ok(recipe);
         }
@@ -73,7 +75,7 @@ namespace RESTBackEnd.API.Controllers
         // POST: api/Recipes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Recipe>> PostRecipe(CreateRecipeDto createRecipeDto)
+        public async Task<ActionResult<GetRecipeDetailDto>> PostRecipe(CreateRecipeDto createRecipeDto)
         {
             var recipe = _mapper.Map<Recipe>(createRecipeDto);
 
@@ -81,7 +83,9 @@ namespace RESTBackEnd.API.Controllers
             _context.Recipes.Add(recipe);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetRecipe", new { id = recipe.RecipeId }, recipe);
+            var dtoRecipe = _mapper.Map<GetRecipeDetailDto>(recipe);
+
+            return Ok(dtoRecipe);
         }
 
         // DELETE: api/Recipes/5

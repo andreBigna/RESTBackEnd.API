@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RESTBackEnd.API.Data;
+using RESTBackEnd.API.Models.UnitMeasure;
 
 namespace RESTBackEnd.API.Controllers
 {
@@ -14,24 +16,29 @@ namespace RESTBackEnd.API.Controllers
     public class UnitMeasuresController : ControllerBase
     {
         private readonly RestBackEndDbContext _context;
+        private readonly IMapper _mapper;
 
-        public UnitMeasuresController(RestBackEndDbContext context)
+        public UnitMeasuresController(RestBackEndDbContext context, IMapper mapper)
         {
             _context = context;
+            this._mapper = mapper;
         }
 
         // GET: api/UnitMeasures
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<UnitMeasure>>> GetUnitMeasures()
+        public async Task<ActionResult<IEnumerable<GetUnitMeasureDto>>> GetUnitMeasures()
         {
             if (_context.UnitMeasures == null) return NotFound();
 
-            return Ok(await _context.UnitMeasures.ToListAsync());
+            var ums = await _context.UnitMeasures.ToListAsync();
+            var dtoUms = _mapper.Map<IEnumerable<GetUnitMeasureDto>>(ums);
+
+            return Ok(dtoUms);
         }
 
         // GET: api/UnitMeasures/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<UnitMeasure>> GetUnitMeasure(int id)
+        public async Task<ActionResult<GetUnitMeasureDto>> GetUnitMeasure(int id)
         {
             if (_context.UnitMeasures == null) return NotFound();
 
@@ -39,7 +46,9 @@ namespace RESTBackEnd.API.Controllers
 
             if (unitMeasure == null) return NotFound();
 
-            return Ok(unitMeasure);
+            var um = _mapper.Map<GetUnitMeasureDto>(unitMeasure);
+
+            return Ok(um);
         }
 
         // PUT: api/UnitMeasures/5

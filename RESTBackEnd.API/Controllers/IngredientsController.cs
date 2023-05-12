@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RESTBackEnd.API.Data;
+using RESTBackEnd.API.Models.Ingredient;
 
 namespace RESTBackEnd.API.Controllers
 {
@@ -14,34 +16,38 @@ namespace RESTBackEnd.API.Controllers
     public class IngredientsController : ControllerBase
     {
         private readonly RestBackEndDbContext _context;
+        private readonly IMapper _mapper;
 
-        public IngredientsController(RestBackEndDbContext context)
+        public IngredientsController(RestBackEndDbContext context, IMapper mapper)
         {
             _context = context;
+            this._mapper = mapper;
         }
 
         // GET: api/Ingredients
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Ingredient>>> GetIngredients()
+        public async Task<ActionResult<IEnumerable<GetIngredientDto>>> GetIngredients()
         {
             if (_context.Ingredients == null) return NotFound();
 
             var ingredients = await _context.Ingredients.ToListAsync();
+            var dtoIngredients = _mapper.Map<IEnumerable<GetIngredientDto>>(ingredients);
 
-            return Ok(ingredients);
+            return Ok(dtoIngredients);
         }
 
         // GET: api/Ingredients/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Ingredient>> GetIngredient(int id)
+        public async Task<ActionResult<GetIngredientDto>> GetIngredient(int id)
         {
             if (_context.Ingredients == null) return NotFound();
 
             var ingredient = await _context.Ingredients.FindAsync(id);
 
             if (ingredient == null) return NotFound();
+            var dtoIngredient = _mapper.Map<GetIngredientDto>(ingredient);
 
-            return Ok(ingredient);
+            return Ok(dtoIngredient);
         }
 
         // PUT: api/Ingredients/5
