@@ -4,3 +4,5 @@ Implemented features:
   - CORS
   - Logging for developing purpose with Serilog
   - Entity Framework
+  - DTOs using records
+  - Automapper
