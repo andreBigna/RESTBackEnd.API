@@ -1,13 +1,7 @@
 namespace RESTBackEnd.API.Models.Recipe
 {
-    public class GetRecipeDto
-    {
-        public string? Name { get; set; }
-
-        public string? Description { get; set; }
-
-        public string? ImagePath { get; set; }
-
-    }
+	public record GetRecipeDto : BaseRecipeDto
+	{
+		public int RecipeId { get; set; }
+	}
 }
-
