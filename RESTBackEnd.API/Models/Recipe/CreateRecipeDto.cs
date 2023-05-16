@@ -6,6 +6,6 @@ namespace RESTBackEnd.API.Models.Recipe
 {
 	public record CreateRecipeDto : BaseRecipeDto
 	{
-		public IList<CreateIngredientDto>? Ingredients { get; set; }
+		public IList<IngredientDto>? Ingredients { get; set; }
 	}
 }

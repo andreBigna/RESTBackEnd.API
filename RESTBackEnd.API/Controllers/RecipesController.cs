@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RESTBackEnd.API.Data;
+using RESTBackEnd.API.Interfaces;
 using RESTBackEnd.API.Models.Recipe;
 
 namespace RESTBackEnd.API.Controllers
@@ -15,20 +16,20 @@ namespace RESTBackEnd.API.Controllers
 	[ApiController]
 	public class RecipesController : ControllerBase
 	{
-		private readonly RestBackEndDbContext _context;
 		private readonly IMapper _mapper;
+		private readonly IRecipeRepository _recipeRepository;
 
-		public RecipesController(RestBackEndDbContext context, IMapper mapper)
+		public RecipesController(IMapper mapper, IRecipeRepository recipeRepository)
 		{
-			_context = context;
 			this._mapper = mapper;
+			_recipeRepository = recipeRepository;
 		}
 
 		// GET: api/Recipes
 		[HttpGet]
 		public async Task<ActionResult<IEnumerable<GetRecipeDto>>> GetRecipes()
 		{
-			var recipes = await _context.Recipes.ToListAsync();
+			var recipes = await _recipeRepository.GetAllAsync();
 			var dtoRecipes = _mapper.Map<IEnumerable<GetRecipeDto>>(recipes);
 			return Ok(dtoRecipes);
 		}
@@ -37,8 +38,7 @@ namespace RESTBackEnd.API.Controllers
 		[HttpGet("{id:int}")]
 		public async Task<ActionResult<GetRecipeDetailDto>> GetRecipe(int id)
 		{
-			var recipe = await _context.Recipes.FindAsync(id);
-			if (recipe == null) return NotFound();
+			var recipe = await _recipeRepository.GetDetails(id);
 
 			var dtoRecipe = _mapper.Map<GetRecipeDetailDto>(recipe);
 
@@ -52,19 +52,17 @@ namespace RESTBackEnd.API.Controllers
 		{
 			if (id != updateRecipeDto.RecipeId) return BadRequest();
 
-			var recipe = await _context.Recipes.FindAsync(id);
-
-			if (recipe == null) return NotFound();
+			var recipe = await _recipeRepository.GetDetails(id);
 
 			_mapper.Map(updateRecipeDto, recipe);
 
 			try
 			{
-				await _context.SaveChangesAsync();
+				await _recipeRepository.UpdateAsync(recipe);
 			}
 			catch (DbUpdateConcurrencyException)
 			{
-				if (!RecipeExists(id))
+				if (!await RecipeExists(id))
 					return NotFound();
 				else
 					throw;
@@ -80,8 +78,7 @@ namespace RESTBackEnd.API.Controllers
 		{
 			var recipe = _mapper.Map<Recipe>(createRecipeDto);
 
-			_context.Recipes.Add(recipe);
-			await _context.SaveChangesAsync();
+			await _recipeRepository.AddAsync(recipe);
 
 			var dtoRecipe = _mapper.Map<GetRecipeDetailDto>(recipe);
 
@@ -92,18 +89,14 @@ namespace RESTBackEnd.API.Controllers
 		[HttpDelete("{id:int}")]
 		public async Task<IActionResult> DeleteRecipe(int id)
 		{
-			var recipe = await _context.Recipes.FindAsync(id);
-			if (recipe == null) return NotFound();
-
-			_context.Recipes.Remove(recipe);
-			await _context.SaveChangesAsync();
+			await _recipeRepository.DeleteAsync(id);
 
 			return NoContent();
 		}
 
-		private bool RecipeExists(int id)
+		private async Task<bool> RecipeExists(int id)
 		{
-			return (_context.Recipes?.Any(e => e.RecipeId == id)).GetValueOrDefault();
+			return await _recipeRepository.ExistsAsync(id);
 		}
 	}
 }
