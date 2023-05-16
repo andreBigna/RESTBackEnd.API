@@ -40,6 +40,8 @@ namespace RESTBackEnd.API.Controllers
 		{
 			var recipe = await _recipeRepository.GetDetails(id);
 
+			if (recipe == null) return NotFound();
+
 			var dtoRecipe = _mapper.Map<GetRecipeDetailDto>(recipe);
 
 			return Ok(dtoRecipe);
@@ -53,6 +55,8 @@ namespace RESTBackEnd.API.Controllers
 			if (id != updateRecipeDto.RecipeId) return BadRequest();
 
 			var recipe = await _recipeRepository.GetDetails(id);
+
+			if (recipe == null) return NotFound();
 
 			_mapper.Map(updateRecipeDto, recipe);
 
@@ -89,6 +93,8 @@ namespace RESTBackEnd.API.Controllers
 		[HttpDelete("{id:int}")]
 		public async Task<IActionResult> DeleteRecipe(int id)
 		{
+			if (!await RecipeExists(id)) return NotFound();
+
 			await _recipeRepository.DeleteAsync(id);
 
 			return NoContent();

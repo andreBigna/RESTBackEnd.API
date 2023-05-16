@@ -16,7 +16,7 @@ namespace RESTBackEnd.API.Repository
 
 		public async Task<T> AddAsync(T entity)
 		{
-			await _context.AddAsync(entity);
+			await _context.Set<T>().AddAsync(entity);
 			await _context.SaveChangesAsync();
 			return entity;
 		}
@@ -24,7 +24,6 @@ namespace RESTBackEnd.API.Repository
 		public async Task DeleteAsync(int id)
 		{
 			var entity = await GetAsync(id);
-			if (entity == null) return;
 			_context.Set<T>().Remove(entity);
 			await _context.SaveChangesAsync();
 		}
@@ -46,7 +45,7 @@ namespace RESTBackEnd.API.Repository
 
 		public async Task<T> UpdateAsync(T entity)
 		{
-			_context.Update(entity);
+			_context.Set<T>().Update(entity);
 			await _context.SaveChangesAsync();
 			return entity;
 		}

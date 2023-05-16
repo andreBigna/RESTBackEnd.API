@@ -13,10 +13,9 @@ namespace RESTBackEnd.API.Repository
 			_context = context;
 		}
 
-		public async Task<Recipe> GetDetails(int id)
+		public async Task<Recipe?> GetDetails(int id)
 		{
-			return await _context.Recipes.Include(r => r.Ingredients).FirstOrDefaultAsync(r => r.RecipeId == id) ??
-			       throw new InvalidOperationException();
+			return await _context.Recipes.Include(r => r.Ingredients).FirstOrDefaultAsync(r => r.RecipeId == id);
 		}
 	}
 }
