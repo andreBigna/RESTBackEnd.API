@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using RESTBackEnd.API.Configurations;
 using RESTBackEnd.API.Data;
@@ -18,6 +19,10 @@ builder.Services.AddDbContext<RestBackEndDbContext>(optionsAction: options =>
 {
 	options.UseSqlServer(builder.Configuration.GetConnectionString("RESTBackEndDB"));
 });
+
+builder.Services.AddIdentityCore<ApiUser>()
+	.AddRoles<IdentityRole>()
+	.AddEntityFrameworkStores<RestBackEndDbContext>();
 
 builder.Services.AddCors(options =>
 {

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RESTBackEnd.API.Data;
 
@@ -11,9 +12,11 @@ using RESTBackEnd.API.Data;
 namespace RESTBackEnd.API.Migrations
 {
     [DbContext(typeof(RestBackEndDbContext))]
-    partial class RestBackEndDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230526152736_AddedNewUnitMeasure")]
+    partial class AddedNewUnitMeasure
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
