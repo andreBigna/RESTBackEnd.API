@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using RESTBackEnd.API.Data.Configurations;
 
 namespace RESTBackEnd.API.Data
 {
@@ -18,48 +19,8 @@ namespace RESTBackEnd.API.Data
 		{
 			base.OnModelCreating(modelBuilder);
 
-			modelBuilder.Entity<UnitMeasure>()
-				.HasIndex(u => u.Code)
-				.IsUnique();
-
-			modelBuilder.Entity<UnitMeasure>().HasData(
-				new UnitMeasure
-				{
-					UnitMeasureId = 1,
-					Code = "mL",
-					LongName = "milliliters"
-				},
-				new UnitMeasure
-				{
-					UnitMeasureId = 2,
-					Code = "L",
-					LongName = "liters"
-				},
-				new UnitMeasure
-				{
-					UnitMeasureId = 3,
-					Code = "mg",
-					LongName = "milligrams"
-				},
-				new UnitMeasure
-				{
-					UnitMeasureId = 4,
-					Code = "g",
-					LongName = "grams"
-				},
-				new UnitMeasure
-				{
-					UnitMeasureId = 5,
-					Code = "kg",
-					LongName = "kilograms"
-				},
-				new UnitMeasure
-				{
-					UnitMeasureId = 6,
-					Code = "pcs",
-					LongName = "pieces"
-				}
-			);
+			modelBuilder.ApplyConfiguration(new RoleConfiguration());
+			modelBuilder.ApplyConfiguration(new UnitMeasureConfiguration());
 		}
 	}
 }
