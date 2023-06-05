@@ -2,6 +2,7 @@
 using RESTBackEnd.API.Data;
 using RESTBackEnd.API.Models.Ingredient;
 using RESTBackEnd.API.Models.Recipe;
+using RESTBackEnd.API.Models.Users;
 
 namespace RESTBackEnd.API.Configurations
 {
@@ -15,6 +16,8 @@ namespace RESTBackEnd.API.Configurations
 			CreateMap<Recipe, GetRecipeDetailDto>().ReverseMap();
 
 			CreateMap<Ingredient, IngredientDto>().ReverseMap();
+
+			CreateMap<ApiUser, ApiUserDto>().ReverseMap();
 		}
 	}
 }

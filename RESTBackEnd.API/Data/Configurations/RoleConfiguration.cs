@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using RESTBackEnd.API.Common;
 
 namespace RESTBackEnd.API.Data.Configurations
 {
@@ -11,13 +12,13 @@ namespace RESTBackEnd.API.Data.Configurations
 			builder.HasData(
 				new IdentityRole()
 				{
-					Name = "Administrator",
-					NormalizedName = "ADMINISTRATOR"
+					Name = RoleNames.Administrator,
+					NormalizedName = RoleNames.Administrator.ToUpper(),
 				},
 				new IdentityRole()
 				{
-					Name = "User",
-					NormalizedName = "USER"
+					Name = RoleNames.User,
+					NormalizedName = RoleNames.User.ToUpper()
 				}
 			);
 		}
