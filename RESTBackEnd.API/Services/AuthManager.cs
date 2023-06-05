@@ -10,18 +10,18 @@ namespace RESTBackEnd.API.Services
 	public class AuthManager : IAuthManager
 	{
 		private readonly IMapper _mapper;
-		private readonly UserManager<ApiUser> _userManager;
+		private readonly UserManager<IdentityUser> _userManager;
 
-		public AuthManager(IMapper mapper, UserManager<ApiUser> userManager)
+		public AuthManager(IMapper mapper, UserManager<IdentityUser> userManager)
 		{
 			_mapper = mapper;
 			_userManager = userManager;
 		}
 
-		public async Task<IEnumerable<IdentityError>> Register(ApiUserDto apiUserDto)
+		public async Task<IEnumerable<IdentityError>> Register(IdentityUserDto identityUserDto)
 		{
-			var user = _mapper.Map<ApiUser>(apiUserDto);
-			user.UserName = apiUserDto.Email;
+			var user = _mapper.Map<IdentityUser>(identityUserDto);
+			user.UserName = identityUserDto.Email;
 
 			var result = await _userManager.CreateAsync(user);
 

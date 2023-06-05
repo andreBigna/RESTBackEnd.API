@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 using RESTBackEnd.API.Data;
 using RESTBackEnd.API.Models.Ingredient;
 using RESTBackEnd.API.Models.Recipe;
@@ -17,7 +18,7 @@ namespace RESTBackEnd.API.Configurations
 
 			CreateMap<Ingredient, IngredientDto>().ReverseMap();
 
-			CreateMap<ApiUser, ApiUserDto>().ReverseMap();
+			CreateMap<IdentityUser, IdentityUserDto>().ReverseMap();
 		}
 	}
 }
