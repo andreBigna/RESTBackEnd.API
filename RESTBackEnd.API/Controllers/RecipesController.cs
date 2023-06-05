@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using RESTBackEnd.API.Data;
@@ -45,6 +46,7 @@ namespace RESTBackEnd.API.Controllers
 		// PUT: api/Recipes/5
 		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
 		[HttpPut("{id:int}")]
+		[Authorize] //NO NEED TO USE ROLES FOR NOW, ANYWAY IT WOULD BE SOMETHING LIKE [Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> PutRecipe(int id, UpdateRecipeDto updateRecipeDto)
 		{
 			if (id != updateRecipeDto.RecipeId) return BadRequest();
@@ -73,6 +75,7 @@ namespace RESTBackEnd.API.Controllers
 		// POST: api/Recipes
 		// To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
 		[HttpPost]
+		[Authorize] //NO NEED TO USE ROLES FOR NOW, ANYWAY IT WOULD BE SOMETHING LIKE [Authorize(Roles = "Administrator")]
 		public async Task<ActionResult<GetRecipeDetailDto>> PostRecipe(CreateRecipeDto createRecipeDto)
 		{
 			var recipe = _mapper.Map<Recipe>(createRecipeDto);
@@ -86,6 +89,7 @@ namespace RESTBackEnd.API.Controllers
 
 		// DELETE: api/Recipes/5
 		[HttpDelete("{id:int}")]
+		[Authorize] //NO NEED TO USE ROLES FOR NOW, ANYWAY IT WOULD BE SOMETHING LIKE [Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> DeleteRecipe(int id)
 		{
 			if (!await RecipeExists(id)) return NotFound();
