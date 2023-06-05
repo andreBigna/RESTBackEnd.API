@@ -33,5 +33,16 @@ namespace RESTBackEnd.API.Controllers
 
 			return BadRequest();
 		}
+
+		[HttpPost, Route("login")]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		public async Task<IActionResult> Login([FromBody] IdentityUserDto user)
+		{
+			var loggedIn = await _authManager.Login(user);
+
+			return loggedIn ? Ok() : BadRequest();
+		}
 	}
 }

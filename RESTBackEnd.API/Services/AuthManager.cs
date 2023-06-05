@@ -29,5 +29,14 @@ namespace RESTBackEnd.API.Services
 
 			return result.Errors;
 		}
+
+		public async Task<bool> Login(IdentityUserDto identityUserDto)
+		{
+			var user = await _userManager.FindByEmailAsync(identityUserDto.Email);
+			if (user == null) return default;
+
+			var isValidPassword = await _userManager.CheckPasswordAsync(user, identityUserDto.Password);
+			return isValidPassword;
+		}
 	}
 }
