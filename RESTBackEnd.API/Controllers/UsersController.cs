@@ -40,9 +40,8 @@ namespace RESTBackEnd.API.Controllers
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<IActionResult> Login([FromBody] IdentityUserDto user)
 		{
-			var loggedIn = await _authManager.Login(user);
-
-			return loggedIn ? Ok() : BadRequest();
+			var authResponse = await _authManager.Login(user);
+			return authResponse == null ? BadRequest() : Ok(authResponse);
 		}
 	}
 }
