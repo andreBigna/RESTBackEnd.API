@@ -23,7 +23,7 @@ namespace RESTBackEnd.API.Services
 			var user = _mapper.Map<IdentityUser>(identityUserDto);
 			user.UserName = identityUserDto.Email;
 
-			var result = await _userManager.CreateAsync(user);
+			var result = await _userManager.CreateAsync(user, identityUserDto.Password);
 
 			if (result.Succeeded) await _userManager.AddToRoleAsync(user, RoleNames.User);
 
