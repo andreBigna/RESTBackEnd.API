@@ -26,7 +26,10 @@ builder.Services.AddDbContext<RestBackEndDbContext>(optionsAction: options =>
 
 builder.Services.AddIdentityCore<IdentityUser>()
 	.AddRoles<IdentityRole>()
-	.AddEntityFrameworkStores<RestBackEndDbContext>();
+	.AddTokenProvider<DataProtectorTokenProvider<IdentityUser>>(builder.Configuration["JwtSettings:Issuer"] ??
+	                                                            "RESTBackEnd.API")
+	.AddEntityFrameworkStores<RestBackEndDbContext>()
+	.AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
 {

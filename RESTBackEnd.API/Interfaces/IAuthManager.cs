@@ -7,6 +7,10 @@ namespace RESTBackEnd.API.Interfaces
 	{
 		Task<IEnumerable<IdentityError>> Register(IdentityUserDto identityUserDto);
 
-		Task<AuthResponse?> Login(IdentityUserDto identityUserDto);
+		Task<AuthResponseDto?> Login(IdentityUserDto identityUserDto);
+
+		Task<string> CreateRefreshToken(IdentityUserDto identityUserDto);
+
+		Task<AuthResponseDto?> VerifyRefreshToken(AuthResponseDto authResponseDto);
 	}
 }

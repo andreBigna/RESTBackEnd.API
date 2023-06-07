@@ -16,12 +16,16 @@ namespace RESTBackEnd.API.Services
 		private readonly IMapper _mapper;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IConfiguration _configuration;
+		private readonly string _issuer;
+		private const string RefreshToken = "RefreshToken";
+
 
 		public AuthManager(IMapper mapper, UserManager<IdentityUser> userManager, IConfiguration configuration)
 		{
 			_mapper = mapper;
 			_userManager = userManager;
 			_configuration = configuration;
+			_issuer = _configuration["JwtSettings:Issuer"]!;
 		}
 
 		public async Task<IEnumerable<IdentityError>> Register(IdentityUserDto identityUserDto)
@@ -36,7 +40,7 @@ namespace RESTBackEnd.API.Services
 			return result.Errors;
 		}
 
-		public async Task<AuthResponse?> Login(IdentityUserDto identityUserDto)
+		public async Task<AuthResponseDto?> Login(IdentityUserDto identityUserDto)
 		{
 			var user = await _userManager.FindByEmailAsync(identityUserDto.Email);
 			if (user == null) return null;
@@ -46,7 +50,8 @@ namespace RESTBackEnd.API.Services
 
 			var token = await GenerateToken(user);
 
-			return new AuthResponse() { Token = token, UserId = user.Id };
+			return new AuthResponseDto()
+				{ Token = token, UserId = user.Id, RefreshToken = await CreateRefreshToken(identityUserDto) };
 		}
 
 		private async Task<string> GenerateToken(IdentityUser user)
@@ -76,6 +81,46 @@ namespace RESTBackEnd.API.Services
 				signingCredentials: signingCredentials);
 
 			return new JwtSecurityTokenHandler().WriteToken(token);
+		}
+
+		public async Task<string> CreateRefreshToken(IdentityUserDto identityUserDto)
+		{
+			var user = await _userManager.FindByEmailAsync(identityUserDto.Email);
+
+			await _userManager.RemoveAuthenticationTokenAsync(user!, _issuer, RefreshToken);
+
+			var refreshedToken = await _userManager.GenerateUserTokenAsync(user!, _issuer, RefreshToken);
+
+			await _userManager.SetAuthenticationTokenAsync(user!, _issuer, RefreshToken, refreshedToken);
+
+			return refreshedToken;
+		}
+
+		public async Task<AuthResponseDto?> VerifyRefreshToken(AuthResponseDto authResponse)
+		{
+			if (string.IsNullOrWhiteSpace(authResponse.UserId) ||
+			    string.IsNullOrWhiteSpace(authResponse.RefreshToken)) return null;
+
+			var user = await _userManager.FindByIdAsync(authResponse.UserId);
+			if (user == null || string.IsNullOrWhiteSpace(user.Email) || user.Id != authResponse.UserId) return null;
+
+			var isTokenValid =
+				await _userManager.VerifyUserTokenAsync(user, _issuer, RefreshToken, token: authResponse.RefreshToken);
+
+			if (isTokenValid)
+			{
+				var token = await GenerateToken(user);
+				return new AuthResponseDto()
+				{
+					Token = token,
+					UserId = authResponse.UserId,
+					RefreshToken = await CreateRefreshToken(new IdentityUserDto()
+						{ Password = string.Empty, Email = user.Email })
+				};
+			}
+
+			await _userManager.UpdateSecurityStampAsync(user);
+			return null;
 		}
 	}
 }

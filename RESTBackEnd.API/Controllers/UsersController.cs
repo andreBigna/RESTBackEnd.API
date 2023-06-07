@@ -41,6 +41,18 @@ namespace RESTBackEnd.API.Controllers
 		public async Task<IActionResult> Login([FromBody] IdentityUserDto user)
 		{
 			var authResponse = await _authManager.Login(user);
+
+			return authResponse == null ? BadRequest() : Ok(authResponse);
+		}
+
+		[HttpPost, Route("refreshtoken")]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		public async Task<IActionResult> RefreshToken([FromBody] AuthResponseDto authResponseDto)
+		{
+			var authResponse = await _authManager.VerifyRefreshToken(authResponseDto);
+
 			return authResponse == null ? BadRequest() : Ok(authResponse);
 		}
 	}
