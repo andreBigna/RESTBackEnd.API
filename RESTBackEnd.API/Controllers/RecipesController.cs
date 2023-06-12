@@ -52,29 +52,15 @@ namespace RESTBackEnd.API.Controllers
 		[Authorize] //NO NEED TO USE ROLES FOR NOW, ANYWAY IT WOULD BE SOMETHING LIKE [Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> PutRecipe(int id, UpdateRecipeDto updateRecipeDto)
 		{
-			const string methodName = nameof(PutRecipe);
-			try
-			{
-				if (id != updateRecipeDto.RecipeId) return ReturnInvalidId();
+			if (id != updateRecipeDto.RecipeId) return ReturnInvalidId();
 
-				var recipe = await _recipeRepository.GetDetails(id);
+			var recipe = await _recipeRepository.GetDetails(id);
 
-				if (recipe == null) return ReturnRecipeNotFound(methodName);
+			if (recipe == null) return ReturnRecipeNotFound(nameof(PutRecipe));
 
-				_mapper.Map(updateRecipeDto, recipe);
+			_mapper.Map(updateRecipeDto, recipe);
 
-				await _recipeRepository.UpdateAsync(recipe);
-			}
-			catch (DbUpdateConcurrencyException e)
-			{
-				if (!await RecipeExists(id)) return ReturnRecipeNotFound(methodName);
-
-				return ReturnInternalError(e, methodName);
-			}
-			catch (Exception e)
-			{
-				return ReturnInternalError(e, methodName);
-			}
+			await _recipeRepository.UpdateAsync(recipe);
 
 			return NoContent();
 		}
@@ -85,20 +71,13 @@ namespace RESTBackEnd.API.Controllers
 		[Authorize] //NO NEED TO USE ROLES FOR NOW, ANYWAY IT WOULD BE SOMETHING LIKE [Authorize(Roles = "Administrator")]
 		public async Task<ActionResult<GetRecipeDetailDto>> PostRecipe(CreateRecipeDto createRecipeDto)
 		{
-			try
-			{
-				var recipe = _mapper.Map<Recipe>(createRecipeDto);
+			var recipe = _mapper.Map<Recipe>(createRecipeDto);
 
-				await _recipeRepository.AddAsync(recipe);
+			await _recipeRepository.AddAsync(recipe);
 
-				var dtoRecipe = _mapper.Map<GetRecipeDetailDto>(recipe);
+			var dtoRecipe = _mapper.Map<GetRecipeDetailDto>(recipe);
 
-				return Ok(dtoRecipe);
-			}
-			catch (Exception e)
-			{
-				return ReturnInternalError(e, nameof(PostRecipe));
-			}
+			return Ok(dtoRecipe);
 		}
 
 		// DELETE: api/Recipes/5
@@ -128,13 +107,6 @@ namespace RESTBackEnd.API.Controllers
 		{
 			_logger.LogWarning($"{nameof(RecipesController)}.{nameof(PutRecipe)} recipe with invalid ID.");
 			return BadRequest();
-		}
-
-		internal ActionResult ReturnInternalError(Exception e, string methodName)
-		{
-			_logger.LogError(e, $"Error calling {nameof(RecipesController)}.{methodName}");
-
-			return Problem("Something went wrong, please contact support", statusCode: 500);
 		}
 	}
 }

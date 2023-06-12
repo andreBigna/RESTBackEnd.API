@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using RESTBackEnd.API.Configurations;
 using RESTBackEnd.API.Data;
 using RESTBackEnd.API.Interfaces;
+using RESTBackEnd.API.Middleware;
 using RESTBackEnd.API.Repository;
 using RESTBackEnd.API.Services;
 using Serilog;
@@ -71,6 +72,8 @@ if (app.Environment.IsDevelopment())
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionHandler>();
 
 app.UseSerilogRequestLogging();
 

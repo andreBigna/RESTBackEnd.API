@@ -24,23 +24,16 @@ namespace RESTBackEnd.API.Controllers
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<IActionResult> Register([FromBody] IdentityUserDto user)
 		{
-			try
-			{
-				var errors = await _authManager.Register(user);
+			var errors = await _authManager.Register(user);
 
-				var identityErrors = errors as IdentityError[] ?? errors.ToArray();
-				if (!identityErrors.Any()) return Ok();
-				foreach (var identityError in identityErrors)
-				{
-					ModelState.AddModelError(identityError.Code, identityError.Description);
-				}
-
-				return ReturnRegistrationErrors(user, identityErrors);
-			}
-			catch (Exception e)
+			var identityErrors = errors as IdentityError[] ?? errors.ToArray();
+			if (!identityErrors.Any()) return Ok();
+			foreach (var identityError in identityErrors)
 			{
-				return ReturnInternalError(e, nameof(Register));
+				ModelState.AddModelError(identityError.Code, identityError.Description);
 			}
+
+			return ReturnRegistrationErrors(user, identityErrors);
 		}
 
 		[HttpPost, Route("login")]
@@ -49,16 +42,9 @@ namespace RESTBackEnd.API.Controllers
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<IActionResult> Login([FromBody] IdentityUserDto user)
 		{
-			try
-			{
-				var authResponse = await _authManager.Login(user);
+			var authResponse = await _authManager.Login(user);
 
-				return authResponse == null ? BadRequest() : Ok(authResponse);
-			}
-			catch (Exception e)
-			{
-				return ReturnInternalError(e, nameof(Login));
-			}
+			return authResponse == null ? BadRequest() : Ok(authResponse);
 		}
 
 		[HttpPost, Route("refreshtoken")]
@@ -67,16 +53,9 @@ namespace RESTBackEnd.API.Controllers
 		[ProducesResponseType(StatusCodes.Status200OK)]
 		public async Task<IActionResult> RefreshToken([FromBody] AuthResponseDto authResponseDto)
 		{
-			try
-			{
-				var authResponse = await _authManager.VerifyRefreshToken(authResponseDto);
+			var authResponse = await _authManager.VerifyRefreshToken(authResponseDto);
 
-				return authResponse == null ? BadRequest() : Ok(authResponse);
-			}
-			catch (Exception e)
-			{
-				return ReturnInternalError(e, nameof(RefreshToken));
-			}
+			return authResponse == null ? BadRequest() : Ok(authResponse);
 		}
 
 		internal IActionResult ReturnRegistrationErrors(IdentityUserDto user, IdentityError[] identityErrors)
@@ -86,13 +65,6 @@ namespace RESTBackEnd.API.Controllers
 				$"{nameof(UsersController)}.{nameof(Register)}, identity error for user {user.Email}: {formattedErrors}");
 
 			return BadRequest();
-		}
-
-		internal IActionResult ReturnInternalError(Exception e, string methodName)
-		{
-			_logger.LogError(e, $"Error calling {nameof(UsersController)}.{methodName}");
-
-			return Problem("Something went wrong, please contact support", statusCode: 500);
 		}
 	}
 }
