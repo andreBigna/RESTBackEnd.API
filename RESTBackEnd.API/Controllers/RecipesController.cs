@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using RESTBackEnd.API.Data;
 using RESTBackEnd.API.Interfaces;
 using RESTBackEnd.API.Models.Recipe;
+using System.Reflection;
 
 namespace RESTBackEnd.API.Controllers
 {
@@ -14,11 +15,13 @@ namespace RESTBackEnd.API.Controllers
 	{
 		private readonly IMapper _mapper;
 		private readonly IRecipeRepository _recipeRepository;
+		private readonly ILogger<RecipesController> _logger;
 
-		public RecipesController(IMapper mapper, IRecipeRepository recipeRepository)
+		public RecipesController(IMapper mapper, IRecipeRepository recipeRepository, ILogger<RecipesController> logger)
 		{
 			this._mapper = mapper;
 			_recipeRepository = recipeRepository;
+			_logger = logger;
 		}
 
 		// GET: api/Recipes
@@ -36,7 +39,7 @@ namespace RESTBackEnd.API.Controllers
 		{
 			var recipe = await _recipeRepository.GetDetails(id);
 
-			if (recipe == null) return NotFound();
+			if (recipe == null) return ReturnRecipeNotFound(nameof(GetRecipe));
 
 			var dtoRecipe = _mapper.Map<GetRecipeDetailDto>(recipe);
 
@@ -49,24 +52,28 @@ namespace RESTBackEnd.API.Controllers
 		[Authorize] //NO NEED TO USE ROLES FOR NOW, ANYWAY IT WOULD BE SOMETHING LIKE [Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> PutRecipe(int id, UpdateRecipeDto updateRecipeDto)
 		{
-			if (id != updateRecipeDto.RecipeId) return BadRequest();
-
-			var recipe = await _recipeRepository.GetDetails(id);
-
-			if (recipe == null) return NotFound();
-
-			_mapper.Map(updateRecipeDto, recipe);
-
+			const string methodName = nameof(PutRecipe);
 			try
 			{
+				if (id != updateRecipeDto.RecipeId) return ReturnInvalidId();
+
+				var recipe = await _recipeRepository.GetDetails(id);
+
+				if (recipe == null) return ReturnRecipeNotFound(methodName);
+
+				_mapper.Map(updateRecipeDto, recipe);
+
 				await _recipeRepository.UpdateAsync(recipe);
 			}
-			catch (DbUpdateConcurrencyException)
+			catch (DbUpdateConcurrencyException e)
 			{
-				if (!await RecipeExists(id))
-					return NotFound();
-				else
-					throw;
+				if (!await RecipeExists(id)) return ReturnRecipeNotFound(methodName);
+
+				return ReturnInternalError(e, methodName);
+			}
+			catch (Exception e)
+			{
+				return ReturnInternalError(e, methodName);
 			}
 
 			return NoContent();
@@ -78,13 +85,20 @@ namespace RESTBackEnd.API.Controllers
 		[Authorize] //NO NEED TO USE ROLES FOR NOW, ANYWAY IT WOULD BE SOMETHING LIKE [Authorize(Roles = "Administrator")]
 		public async Task<ActionResult<GetRecipeDetailDto>> PostRecipe(CreateRecipeDto createRecipeDto)
 		{
-			var recipe = _mapper.Map<Recipe>(createRecipeDto);
+			try
+			{
+				var recipe = _mapper.Map<Recipe>(createRecipeDto);
 
-			await _recipeRepository.AddAsync(recipe);
+				await _recipeRepository.AddAsync(recipe);
 
-			var dtoRecipe = _mapper.Map<GetRecipeDetailDto>(recipe);
+				var dtoRecipe = _mapper.Map<GetRecipeDetailDto>(recipe);
 
-			return Ok(dtoRecipe);
+				return Ok(dtoRecipe);
+			}
+			catch (Exception e)
+			{
+				return ReturnInternalError(e, nameof(PostRecipe));
+			}
 		}
 
 		// DELETE: api/Recipes/5
@@ -92,7 +106,7 @@ namespace RESTBackEnd.API.Controllers
 		[Authorize] //NO NEED TO USE ROLES FOR NOW, ANYWAY IT WOULD BE SOMETHING LIKE [Authorize(Roles = "Administrator")]
 		public async Task<IActionResult> DeleteRecipe(int id)
 		{
-			if (!await RecipeExists(id)) return NotFound();
+			if (!await RecipeExists(id)) return ReturnRecipeNotFound(nameof(DeleteRecipe));
 
 			await _recipeRepository.DeleteAsync(id);
 
@@ -102,6 +116,25 @@ namespace RESTBackEnd.API.Controllers
 		private async Task<bool> RecipeExists(int id)
 		{
 			return await _recipeRepository.ExistsAsync(id);
+		}
+
+		internal ActionResult ReturnRecipeNotFound(string methodName)
+		{
+			_logger.LogWarning($"{nameof(RecipesController)}.{methodName} recipe not found.");
+			return NotFound();
+		}
+
+		internal IActionResult ReturnInvalidId()
+		{
+			_logger.LogWarning($"{nameof(RecipesController)}.{nameof(PutRecipe)} recipe with invalid ID.");
+			return BadRequest();
+		}
+
+		internal ActionResult ReturnInternalError(Exception e, string methodName)
+		{
+			_logger.LogError(e, $"Error calling {nameof(RecipesController)}.{methodName}");
+
+			return Problem("Something went wrong, please contact support", statusCode: 500);
 		}
 	}
 }

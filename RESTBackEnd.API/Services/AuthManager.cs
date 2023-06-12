@@ -16,15 +16,18 @@ namespace RESTBackEnd.API.Services
 		private readonly IMapper _mapper;
 		private readonly UserManager<IdentityUser> _userManager;
 		private readonly IConfiguration _configuration;
+		private readonly ILogger<AuthManager> _logger;
 		private readonly string _issuer;
 		private const string RefreshToken = "RefreshToken";
 
 
-		public AuthManager(IMapper mapper, UserManager<IdentityUser> userManager, IConfiguration configuration)
+		public AuthManager(IMapper mapper, UserManager<IdentityUser> userManager, IConfiguration configuration,
+			ILogger<AuthManager> logger)
 		{
 			_mapper = mapper;
 			_userManager = userManager;
 			_configuration = configuration;
+			_logger = logger;
 			_issuer = _configuration["JwtSettings:Issuer"]!;
 		}
 
@@ -43,10 +46,10 @@ namespace RESTBackEnd.API.Services
 		public async Task<AuthResponseDto?> Login(IdentityUserDto identityUserDto)
 		{
 			var user = await _userManager.FindByEmailAsync(identityUserDto.Email);
-			if (user == null) return null;
+			if (user == null) return ReturnCannotFindUserByEmail(identityUserDto);
 
 			var isValidPassword = await _userManager.CheckPasswordAsync(user, identityUserDto.Password);
-			if (!isValidPassword) return null;
+			if (!isValidPassword) return ReturnInvalidPassword(identityUserDto);
 
 			var token = await GenerateToken(user);
 
@@ -99,10 +102,11 @@ namespace RESTBackEnd.API.Services
 		public async Task<AuthResponseDto?> VerifyRefreshToken(AuthResponseDto authResponse)
 		{
 			if (string.IsNullOrWhiteSpace(authResponse.UserId) ||
-			    string.IsNullOrWhiteSpace(authResponse.RefreshToken)) return null;
+			    string.IsNullOrWhiteSpace(authResponse.RefreshToken)) return ReturnInvalidUserIdOrToken();
 
 			var user = await _userManager.FindByIdAsync(authResponse.UserId);
-			if (user == null || string.IsNullOrWhiteSpace(user.Email) || user.Id != authResponse.UserId) return null;
+			if (user == null || string.IsNullOrWhiteSpace(user.Email) || user.Id != authResponse.UserId)
+				return ReturnInvalidUserOrEmail(user);
 
 			var isTokenValid =
 				await _userManager.VerifyUserTokenAsync(user, _issuer, RefreshToken, token: authResponse.RefreshToken);
@@ -120,6 +124,35 @@ namespace RESTBackEnd.API.Services
 			}
 
 			await _userManager.UpdateSecurityStampAsync(user);
+			_logger.LogWarning(
+				$"{nameof(AuthManager)}.{nameof(VerifyRefreshToken)}: invalid {nameof(authResponse.RefreshToken)}");
+			return null;
+		}
+
+		internal AuthResponseDto? ReturnCannotFindUserByEmail(IdentityUserDto identityUserDto)
+		{
+			_logger.LogWarning(
+				$"{nameof(AuthManager)}.{nameof(Login)}: couldn't find user by email {identityUserDto.Email}");
+			return null;
+		}
+
+		private AuthResponseDto? ReturnInvalidPassword(IdentityUserDto identityUserDto)
+		{
+			_logger.LogWarning($"{nameof(AuthManager)}.{nameof(Login)}: invalid password for {identityUserDto.Email}");
+			return null;
+		}
+
+		private AuthResponseDto? ReturnInvalidUserIdOrToken()
+		{
+			_logger.LogWarning(
+				$"{nameof(AuthManager)}.{nameof(VerifyRefreshToken)}: invalid {nameof(AuthResponseDto.UserId)} or {nameof(AuthResponseDto.RefreshToken)}");
+			return null;
+		}
+
+		private AuthResponseDto? ReturnInvalidUserOrEmail(IdentityUser? user)
+		{
+			_logger.LogWarning(
+				$"{nameof(AuthManager)}.{nameof(VerifyRefreshToken)}: invalid {nameof(user)} or {nameof(user.Email)}");
 			return null;
 		}
 	}
