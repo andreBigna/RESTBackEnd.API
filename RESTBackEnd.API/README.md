@@ -8,3 +8,5 @@ Implemented features:
   - Automapper
   - AspNetCore Identity
   - JWT Authentication
+  - Global error handling
+  - API Versioning

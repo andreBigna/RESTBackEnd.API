@@ -1,6 +1,8 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using RESTBackEnd.API.Configurations;
@@ -61,6 +63,19 @@ builder.Services.AddAutoMapper(typeof(MapperConfig));
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
 builder.Services.AddScoped<IAuthManager, AuthManager>();
+
+builder.Services.AddApiVersioning(options =>
+{
+	options.ApiVersionReader = new HeaderApiVersionReader("X-Version");
+	options.AssumeDefaultVersionWhenUnspecified = true;
+	options.DefaultApiVersion = new ApiVersion(1, 0);
+});
+
+builder.Services.AddVersionedApiExplorer(options =>
+{
+	options.GroupNameFormat = "'v'VVV";
+	options.SubstituteApiVersionInUrl = true;
+});
 
 builder.Host.UseSerilog((context, logConf) => logConf.WriteTo.Console().ReadFrom.Configuration(context.Configuration));
 
