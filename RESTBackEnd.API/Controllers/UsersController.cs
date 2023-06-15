@@ -8,6 +8,7 @@ namespace RESTBackEnd.API.Controllers
 	[Route("api/[controller]")]
 	[ApiController]
 	[ApiVersion("1.0")]
+	[ResponseCache(NoStore = true)]
 	public class UsersController : ControllerBase
 	{
 		private readonly IAuthManager _authManager;

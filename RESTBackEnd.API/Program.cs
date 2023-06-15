@@ -77,6 +77,12 @@ builder.Services.AddVersionedApiExplorer(options =>
 	options.SubstituteApiVersionInUrl = true;
 });
 
+builder.Services.AddResponseCaching(options =>
+{
+	options.MaximumBodySize = 1024;
+	options.UseCaseSensitivePaths = true;
+});
+
 builder.Host.UseSerilog((context, logConf) => logConf.WriteTo.Console().ReadFrom.Configuration(context.Configuration));
 
 var app = builder.Build();
@@ -88,6 +94,9 @@ if (app.Environment.IsDevelopment())
 	app.UseSwaggerUI();
 }
 
+app.UseResponseCaching();
+
+app.UseMiddleware<CacheHandler>();
 app.UseMiddleware<ExceptionHandler>();
 
 app.UseSerilogRequestLogging();

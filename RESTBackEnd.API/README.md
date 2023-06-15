@@ -10,3 +10,4 @@ Implemented features:
   - JWT Authentication
   - Global error handling
   - API Versioning
+  - Caching (To be tested)

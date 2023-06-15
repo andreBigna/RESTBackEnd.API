@@ -11,6 +11,7 @@ namespace RESTBackEnd.API.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
+	[ResponseCache(NoStore = true)]
 	public class RecipesController : ControllerBase
 	{
 		private readonly IMapper _mapper;
