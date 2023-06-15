@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using RESTBackEnd.API.Data;
 using RESTBackEnd.API.Models.Ingredient;
 using RESTBackEnd.API.Models.Recipe;
+using RESTBackEnd.API.Models.UnitMeasure;
 using RESTBackEnd.API.Models.Users;
 
 namespace RESTBackEnd.API.Configurations
@@ -19,6 +20,9 @@ namespace RESTBackEnd.API.Configurations
 			CreateMap<Ingredient, IngredientDto>().ReverseMap();
 
 			CreateMap<IdentityUser, IdentityUserDto>().ReverseMap();
+
+			CreateMap<UnitMeasure, UnitMeasureDto>().ReverseMap();
+
 		}
 	}
 }

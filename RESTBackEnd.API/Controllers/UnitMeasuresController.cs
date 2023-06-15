@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using RESTBackEnd.API.Data;
-using RESTBackEnd.API.Repository;
+using RESTBackEnd.API.Interfaces;
+using RESTBackEnd.API.Models.UnitMeasure;
 
 namespace RESTBackEnd.API.Controllers
 {
@@ -8,20 +10,24 @@ namespace RESTBackEnd.API.Controllers
    [ApiController]
    public class UnitMeasuresController : ControllerBase
    {
-		private readonly UnitMeasureRepository _unitMeasureRepository;
+		private readonly IMapper _mapper;
+		private readonly IUnitMeasureRepository _unitMeasureRepository;
 
-		public UnitMeasuresController(UnitMeasureRepository unitMeasureRepository)
+		public UnitMeasuresController(IMapper mapper, IUnitMeasureRepository unitMeasureRepository)
       {
+			this._mapper = mapper;
 			this._unitMeasureRepository = unitMeasureRepository;
 		}
 
       // GET: api/UnitMeasures
       [HttpGet]
-      public async Task<ActionResult<IEnumerable<UnitMeasure>>> GetUnitMeasures()
+      public async Task<ActionResult<IEnumerable<UnitMeasureDto>>> GetUnitMeasures()
       {
          var unitMeasures = await _unitMeasureRepository.GetAllAsync();
+			var dtoUnitMeasures = _mapper.Map<IEnumerable<UnitMeasureDto>>(unitMeasures);
 
-         return Ok(unitMeasures);
+
+			return Ok(dtoUnitMeasures);
       }
 
    }

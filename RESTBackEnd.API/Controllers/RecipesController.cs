@@ -1,17 +1,15 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using RESTBackEnd.API.Data;
 using RESTBackEnd.API.Interfaces;
 using RESTBackEnd.API.Models.Recipe;
-using System.Reflection;
 
 namespace RESTBackEnd.API.Controllers
 {
 	[Route("api/[controller]")]
 	[ApiController]
-	[ResponseCache(NoStore = true)]
+	[ResponseCache(Location = ResponseCacheLocation.Client, Duration = 0)] //THIS SHOULD DISABLE CACHING
 	public class RecipesController : ControllerBase
 	{
 		private readonly IMapper _mapper;

@@ -62,6 +62,7 @@ builder.Services.AddAutoMapper(typeof(MapperConfig));
 
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
+builder.Services.AddScoped<IUnitMeasureRepository, UnitMeasureRepository>();
 builder.Services.AddScoped<IAuthManager, AuthManager>();
 
 builder.Services.AddApiVersioning(options =>

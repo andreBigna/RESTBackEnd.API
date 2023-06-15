@@ -10,7 +10,7 @@
 		}
 
 		public async Task InvokeAsync(HttpContext httpContext)
-		{
+		{			
 			httpContext.Response.GetTypedHeaders().CacheControl = new Microsoft.Net.Http.Headers.CacheControlHeaderValue
 			{
 				MaxAge = TimeSpan.FromSeconds(10),
