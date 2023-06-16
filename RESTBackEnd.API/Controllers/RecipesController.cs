@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 using RESTBackEnd.API.Data;
 using RESTBackEnd.API.Interfaces;
 using RESTBackEnd.API.Models;
@@ -26,6 +27,7 @@ namespace RESTBackEnd.API.Controllers
 
 		// GET: api/Recipes
 		[HttpGet]
+		[EnableQuery]
 		public async Task<ActionResult<IEnumerable<GetRecipeDto>>> GetRecipes()
 		{
 			var recipes = await _recipeRepository.GetAllAsync();
@@ -35,6 +37,7 @@ namespace RESTBackEnd.API.Controllers
 
 		// GET: api/Recipes
 		[HttpGet("GetPaged")]
+		[EnableQuery]
 		public async Task<ActionResult<PagedResults<GetRecipeDto>>> GetPagedRecipes(
 			[FromQuery] QueryParameters queryParameters)
 		{

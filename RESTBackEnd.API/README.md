@@ -12,3 +12,4 @@ Implemented features:
   - API Versioning
   - Caching
   - Paging
+  - OData
