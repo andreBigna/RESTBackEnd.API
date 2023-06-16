@@ -1,6 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 using RESTBackEnd.API.Data;
 using RESTBackEnd.API.Interfaces;
+using RESTBackEnd.API.Models;
 
 namespace RESTBackEnd.API.Repository
 {
@@ -8,10 +11,12 @@ namespace RESTBackEnd.API.Repository
 
 	{
 		private readonly RestBackEndDbContext _context;
+		private readonly IMapper _mapper;
 
-		public BaseRepository(RestBackEndDbContext context)
+		public BaseRepository(RestBackEndDbContext context, IMapper mapper)
 		{
 			_context = context;
+			_mapper = mapper;
 		}
 
 		public async Task<T> AddAsync(T entity)
@@ -41,6 +46,24 @@ namespace RESTBackEnd.API.Repository
 		public async Task<IList<T>> GetAllAsync()
 		{
 			return await _context.Set<T>().ToListAsync();
+		}
+
+		public async Task<PagedResults<TResult>> GetAllAsync<TResult>(QueryParameters queryParameters)
+		{
+			var totalRecord = await _context.Set<T>().CountAsync();
+			var items = await _context.Set<T>()
+				.Skip(queryParameters.StartIndex)
+				.Take(queryParameters.PageSize)
+				.ProjectTo<TResult>(_mapper.ConfigurationProvider)
+				.ToListAsync();
+
+			return new PagedResults<TResult>()
+			{
+				Items = items,
+				TotalRecord = totalRecord,
+				RecordNumber = queryParameters.PageSize,
+				Page = queryParameters.StartIndex
+			};
 		}
 
 		public async Task<T> UpdateAsync(T entity)

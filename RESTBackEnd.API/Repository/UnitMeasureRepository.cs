@@ -1,4 +1,5 @@
-﻿using RESTBackEnd.API.Data;
+﻿using AutoMapper;
+using RESTBackEnd.API.Data;
 using RESTBackEnd.API.Interfaces;
 
 namespace RESTBackEnd.API.Repository
@@ -7,7 +8,7 @@ namespace RESTBackEnd.API.Repository
 	{
 		private readonly RestBackEndDbContext _context;
 
-		public UnitMeasureRepository(RestBackEndDbContext context) : base(context)
+		public UnitMeasureRepository(RestBackEndDbContext context, IMapper mapper) : base(context, mapper)
 		{
 			this._context = context;
 		}

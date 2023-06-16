@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using RESTBackEnd.API.Data;
 using RESTBackEnd.API.Interfaces;
 
@@ -8,7 +9,7 @@ namespace RESTBackEnd.API.Repository
 	{
 		private readonly RestBackEndDbContext _context;
 
-		public RecipeRepository(RestBackEndDbContext context) : base(context)
+		public RecipeRepository(RestBackEndDbContext context, IMapper mapper) : base(context, mapper)
 		{
 			_context = context;
 		}

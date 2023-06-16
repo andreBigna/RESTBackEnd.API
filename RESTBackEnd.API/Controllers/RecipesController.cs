@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RESTBackEnd.API.Data;
 using RESTBackEnd.API.Interfaces;
+using RESTBackEnd.API.Models;
 using RESTBackEnd.API.Models.Recipe;
 
 namespace RESTBackEnd.API.Controllers
@@ -30,6 +31,15 @@ namespace RESTBackEnd.API.Controllers
 			var recipes = await _recipeRepository.GetAllAsync();
 			var dtoRecipes = _mapper.Map<IEnumerable<GetRecipeDto>>(recipes);
 			return Ok(dtoRecipes);
+		}
+
+		// GET: api/Recipes
+		[HttpGet("GetPaged")]
+		public async Task<ActionResult<PagedResults<GetRecipeDto>>> GetPagedRecipes(
+			[FromQuery] QueryParameters queryParameters)
+		{
+			var pagedRecipes = await _recipeRepository.GetAllAsync<GetRecipeDto>(queryParameters);
+			return Ok(pagedRecipes);
 		}
 
 		// GET: api/Recipes/5
